@@ -13,6 +13,8 @@ class Table : Comparable, CustomStringConvertible {
         freeSeats = s
     }
     
+    //MARK: - Actions
+    
     func mayBeTaken(byGroup group:ClientsGroup) -> Bool {
         return freeSeats >= group.size
     }
@@ -49,8 +51,8 @@ class ClientsGroup : Hashable, CustomStringConvertible {
     
     let size:Int // number of clients
     
-    private var _table:Table?
-    weak var table:Table? {
+    private weak var _table:Table?
+    var table:Table? {
         get {
             return _table
         }
@@ -59,6 +61,8 @@ class ClientsGroup : Hashable, CustomStringConvertible {
     init(size s:Int) {
         size = s
     }
+    
+    //MARK: - Actions
     
     func take(table t:Table) {
         _table = t
@@ -124,6 +128,17 @@ class RestManager : CustomStringConvertible {
         return tableToSeat
     }
     
+    //both tables are sutable, choose with smallest seats size
+    private func bestOfTables(forGroup group:ClientsGroup, table1:Table, table2:Table) -> Table {
+        if table1.size == group.size {
+            return table1
+        } else if table2.size == group.size {
+            return table2
+        } else {
+            return min(table1, table2)
+        }
+    }
+    
     // client(s) leave, either served or simply abandoning the clientsQueue
     func onLeave(group:ClientsGroup) {
         if let table = group.table {
@@ -156,19 +171,6 @@ class RestManager : CustomStringConvertible {
     func lookup(group:ClientsGroup) -> Table? {
         return group.table
     }
-    
-    //MARK: -
-    
-    private func bestOfTables(forGroup group:ClientsGroup, table1:Table, table2:Table) -> Table {
-        if table1.size == group.size {
-            return table1
-        } else if table2.size == group.size {
-            return table2
-        } else {
-            return min(table1, table2)
-        }
-    }
-    
     
     //MARK: - CustomStringConvertible
     
